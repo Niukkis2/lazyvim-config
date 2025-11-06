@@ -24,6 +24,44 @@ require("lazy").setup({
       cmd = { "LiveServerStart", "LiveServerStop" },
       config = true,
     },
+    { "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = ... },
+    { "justinhj/battery.nvim" },
+    { "nvim-tree/nvim-web-devicons", opts = {} },
+    {
+      "saxon1964/neovim-tips",
+      version = "*", -- Only update on tagged releases
+      lazy = false, -- Load on startup (recommended for daily tip feature)
+      dependencies = {
+        "MunifTanjim/nui.nvim",
+        -- OPTIONAL: Choose your preferred markdown renderer (or omit for raw markdown)
+        "MeanderingProgrammer/render-markdown.nvim", -- Clean rendering
+        -- OR: "OXY2DEV/markview.nvim", -- Rich rendering with advanced features
+      },
+      opts = {
+        -- OPTIONAL: Location of user defined tips (default value shown below)
+        user_file = vim.fn.stdpath("config") .. "/neovim_tips/user_tips.md",
+        -- OPTIONAL: Prefix for user tips to avoid conflicts (default: "[User] ")
+        user_tip_prefix = "[User] ",
+        -- OPTIONAL: Show warnings when user tips conflict with builtin (default: true)
+        warn_on_conflicts = true,
+        -- OPTIONAL: Daily tip mode (default: 1)
+        -- 0 = off, 1 = once per day, 2 = every startup
+        daily_tip = 1,
+        -- OPTIONAL: Bookmark symbol (default: "🌟 ")
+        bookmark_symbol = "🌟 ",
+      },
+      init = function()
+        -- OPTIONAL: Change to your liking or drop completely
+        -- The plugin does not provide default key mappings, only commands
+        local map = vim.keymap.set
+        map("n", "<leader>tto", ":NeovimTips<CR>", { desc = "Neovim tips", silent = true })
+        map("n", "<leader>tte", ":NeovimTipsEdit<CR>", { desc = "Edit your Neovim tips", silent = true })
+        map("n", "<leader>tta", ":NeovimTipsAdd<CR>", { desc = "Add your Neovim tip", silent = true })
+        map("n", "<leader>tth", ":help neovim-tips<CR>", { desc = "Neovim tips help", silent = true })
+        map("n", "<leader>ttr", ":NeovimTipsRandom<CR>", { desc = "Show random tip", silent = true })
+        map("n", "<leader>ttp", ":NeovimTipsPdf<CR>", { desc = "Open Neovim tips PDF", silent = true })
+      end,
+    },
     -- import/override with your plugins
     { import = "plugins" },
   },
@@ -58,7 +96,28 @@ require("lazy").setup({
   },
 })
 
-vim.o.tabstop = 4 -- A TAB character looks like 4 spaces
+-- set tabs to 2 spaces
+vim.o.tabstop = 2 -- A TAB character looks like 4 spaces
 vim.o.expandtab = true -- Pressing the TAB key will insert spaces instead of a TAB character
-vim.o.softtabstop = 4 -- Number of spaces inserted instead of a TAB character
-vim.o.shiftwidth = 4 -- Number of spaces inserted when indenting
+vim.o.softtabstop = 2 -- Number of spaces inserted instead of a TAB character
+vim.o.shiftwidth = 2 -- Number of spaces inserted when indenting
+
+if vim.fn.executable("pwsh") == 1 then
+  vim.o.shell = "pwsh"
+else
+  vim.o.shell = "powershell"
+end
+
+-- Setting shell command flags
+vim.o.shellcmdflag =
+  "-NoLogo -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new();$PSDefaultParameterValues['Out-File:Encoding']='utf8';"
+
+-- Setting shell redirection
+vim.o.shellredir = '2>&1 | %{ "$_" } | Out-File %s; exit $LastExitCode'
+
+-- Setting shell pipe
+vim.o.shellpipe = '2>&1 | %{ "$_" } | Tee-Object %s; exit $LastExitCode'
+
+-- Setting shell quote options
+vim.o.shellquote = ""
+vim.o.shellxquote = ""
